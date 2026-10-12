@@ -1,0 +1,44 @@
+# Parking spot ROI definitions.
+# Each spot is an axis-aligned rectangle in frame pixel coordinates: [x1, y1, x2, y2].
+# A spot is marked "occupied" when a vehicle centroid remains inside the ROI
+# for longer than occupied_threshold_seconds.
+#
+# Calibration: place the camera so the parking area is visible, capture a frame,
+# and use an image editor to read pixel coordinates of each parking bay.
+
+# Dwell time (seconds) before a spot is considered occupied
+occupied_threshold_seconds: 5
+
+parking_spots:
+
+  # ── Row A — top row ───────────────────────────────────────────────────────
+  - spot_id: "A1"
+    roi: [50, 250, 160, 360]
+
+  - spot_id: "A2"
+    roi: [180, 250, 290, 360]
+
+  - spot_id: "A3"
+    roi: [310, 250, 420, 360]
+
+  - spot_id: "A4"
+    roi: [440, 250, 550, 360]
+
+  - spot_id: "A5"
+    roi: [570, 250, 680, 360]
+
+  # ── Row B — bottom row ────────────────────────────────────────────────────
+  - spot_id: "B1"
+    roi: [50, 390, 160, 500]
+
+  - spot_id: "B2"
+    roi: [180, 390, 290, 500]
+
+  - spot_id: "B3"
+    roi: [310, 390, 420, 500]
+
+  - spot_id: "B4"
+    roi: [440, 390, 550, 500]
+
+  - spot_id: "B5"
+    roi: [570, 390, 680, 500]

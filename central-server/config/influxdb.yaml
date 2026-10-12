@@ -1,0 +1,10 @@
+# InfluxDB connection configuration for the aggregator.
+# Values are overridden by environment variables (recommended for production).
+
+url: "http://influxdb:8086"
+org: "smartcity"
+bucket: "traffic"
+
+# Token is ALWAYS set via the INFLUXDB_TOKEN environment variable.
+# Do NOT store tokens in this file.
+token: ""

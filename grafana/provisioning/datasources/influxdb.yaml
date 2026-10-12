@@ -1,0 +1,19 @@
+# Grafana data source provisioning — InfluxDB 2.x (Flux query language)
+# Reference: https://grafana.com/docs/grafana/latest/datasources/influxdb/
+
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: smartcity
+      defaultBucket: traffic
+      tlsSkipVerify: true
+    secureJsonData:
+      token: ${INFLUXDB_TOKEN}
+    isDefault: true
+    editable: true

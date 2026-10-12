@@ -1,0 +1,19 @@
+# MQTT broker configuration for the edge node.
+# Override with NODE_ID, MQTT_BROKER_HOST, MQTT_BROKER_PORT env vars.
+
+# IP or hostname of the central MQTT broker (Mosquitto)
+broker_host: "192.168.1.100"
+
+# Standard MQTT port
+broker_port: 1883
+
+# This node's identifier — used in MQTT topic hierarchy: city/<client_id>/...
+# Override with NODE_ID environment variable in K3s deployment
+client_id: "node-1"
+
+# QoS 0: publish raw track data every raw_track_interval frames
+publish_raw_tracks: true
+raw_track_interval: 5    # publish every 5th frame (~6 updates/s at 30 FPS)
+
+# MQTT keep-alive interval in seconds
+keepalive: 60

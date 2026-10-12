@@ -1,0 +1,27 @@
+# Edge node Python dependencies
+
+# ── Computer vision ───────────────────────────────────────────────────────────
+opencv-python-headless==4.9.0.80    # OpenCV without GUI (ONNX fallback detector)
+
+# ── Scientific computing ──────────────────────────────────────────────────────
+numpy==1.26.4
+scipy==1.13.1                        # Linear assignment (Hungarian algorithm) for tracker
+
+# ── MQTT ─────────────────────────────────────────────────────────────────────
+paho-mqtt==2.1.0
+
+# ── Config / serialisation ────────────────────────────────────────────────────
+PyYAML==6.0.2
+
+# ── Camera (Raspberry Pi only — pre-installed on host, listed for reference) ─
+# picamera2 is installed via apt on the Pi; skip pip install on non-Pi systems
+# picamera2>=0.3.21
+
+# ── Hailo runtime (installed separately from Hailo SDK, not via pip) ─────────
+# hailo_platform is distributed with the Hailo PCIe driver / SDK.
+# Install following: https://hailo.ai/developer-zone/documentation/
+# Listed here for documentation purposes only.
+# hailo-platform>=4.17.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+psutil==5.9.8                        # System metrics (CPU, memory) for health reporting

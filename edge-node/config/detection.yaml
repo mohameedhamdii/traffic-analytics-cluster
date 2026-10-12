@@ -1,0 +1,26 @@
+# Object detection configuration for YOLOv8-nano.
+
+# Minimum confidence to consider a detection valid (before NMS)
+confidence_threshold: 0.4
+
+# IoU threshold for Non-Maximum Suppression
+nms_threshold: 0.45
+
+# Model input size (must match the compiled model's expected input)
+input_size: [640, 640]
+
+# Paths to model files — relative to the container's /app/ working directory
+hef_model_path: "models/yolov8n-traffic.hef"
+onnx_model_path: "models/yolov8n-traffic.onnx"
+
+# Set to false to skip Hailo and always use ONNX CPU fallback
+enable_hailo: true
+
+# Class names — must match the training dataset class order
+class_names:
+  - car
+  - truck
+  - bus
+  - motorcycle
+  - bicycle
+  - pedestrian

@@ -1,0 +1,140 @@
+# Edge Node DaemonSet — deploys one inference pod per labelled edge node.
+#
+# Before deploying:
+#   1. Label each edge Pi: kubectl label node <node-name> role=edge-camera
+#   2. Build the edge-node image and push to a registry accessible by the cluster.
+#      OR use k3s ctr images import <image.tar> to load locally.
+#   3. Create the 'traffic-analytics' namespace first:
+#      kubectl apply -f k3s/namespace.yaml
+#   4. Create the models ConfigMap / PersistentVolume with the HEF/ONNX model files.
+#
+# Deploy: kubectl apply -f k3s/edge-node-deployment.yaml
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: edge-node
+  namespace: traffic-analytics
+  labels:
+    app: edge-node
+    app.kubernetes.io/name: edge-node
+    app.kubernetes.io/part-of: smart-city
+spec:
+  selector:
+    matchLabels:
+      app: edge-node
+
+  # ── Pod template ──────────────────────────────────────────────────────────
+  template:
+    metadata:
+      labels:
+        app: edge-node
+    spec:
+      # Run only on nodes labelled role=edge-camera
+      nodeSelector:
+        role: edge-camera
+
+      # Tolerate any taints on edge nodes
+      tolerations:
+        - operator: "Exists"
+
+      # Use the host network so the pod can reach the MQTT broker by IP
+      hostNetwork: false
+
+      # Give each pod the same hostname as its node for the NODE_ID
+      dnsPolicy: ClusterFirstWithHostNet
+
+      containers:
+        - name: edge-node
+          image: traffic-edge-node:latest  # replace with your registry path
+          imagePullPolicy: IfNotPresent
+
+          # Pass node identity and broker address as environment variables
+          env:
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MQTT_BROKER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: edge-node-config
+                  key: mqtt_broker_host
+            - name: MQTT_BROKER_PORT
+              value: "1883"
+
+          # Resource requests and limits
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "2"
+
+          # Liveness probe — checks that the process hasn't crashed
+          livenessProbe:
+            exec:
+              command: ["pgrep", "-f", "main.py"]
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            failureThreshold: 3
+
+          # Volume mounts
+          volumeMounts:
+            - name: camera-device
+              mountPath: /dev/video0
+            - name: hailo-device
+              mountPath: /dev/hailo0
+            - name: models
+              mountPath: /app/models
+              readOnly: true
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+
+          # Security context — must run privileged to access /dev/hailo0
+          securityContext:
+            privileged: true
+            runAsUser: 0
+
+      # ── Volumes ──────────────────────────────────────────────────────────
+      volumes:
+        - name: camera-device
+          hostPath:
+            path: /dev/video0
+            type: CharDevice
+
+        - name: hailo-device
+          hostPath:
+            path: /dev/hailo0
+            type: CharDevice
+
+        # Models stored on a shared NFS volume or PersistentVolumeClaim
+        - name: models
+          hostPath:
+            path: /opt/traffic-models
+            type: Directory
+
+        # Config stored on the host (synced from this repo by setup script)
+        - name: config
+          hostPath:
+            path: /opt/traffic-config
+            type: Directory
+
+  # ── Update strategy ───────────────────────────────────────────────────────
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+
+---
+# ConfigMap for broker address — edit before deploying
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edge-node-config
+  namespace: traffic-analytics
+data:
+  mqtt_broker_host: "192.168.1.100"   # ← change to your central server IP

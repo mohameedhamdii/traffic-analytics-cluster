@@ -1,0 +1,84 @@
+# Central services deployment — runs the aggregator on the K3s master node.
+#
+# Mosquitto, InfluxDB, and Grafana are managed via docker-compose on the
+# central server directly (not via K3s), so this manifest only covers
+# the aggregator Python service.
+#
+# To use K3s for ALL central services, convert docker-compose.yaml to K3s
+# manifests using kompose: https://kompose.io/
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregator
+  namespace: traffic-analytics
+  labels:
+    app: aggregator
+    app.kubernetes.io/name: aggregator
+    app.kubernetes.io/part-of: smart-city
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregator
+
+  template:
+    metadata:
+      labels:
+        app: aggregator
+    spec:
+      # Run on the master / central server node
+      nodeSelector:
+        node-role.kubernetes.io/master: "true"
+
+      containers:
+        - name: aggregator
+          image: traffic-aggregator:latest  # replace with your registry path
+          imagePullPolicy: IfNotPresent
+
+          env:
+            - name: MQTT_BROKER_HOST
+              value: "mosquitto"
+            - name: MQTT_BROKER_PORT
+              value: "1883"
+            - name: INFLUXDB_URL
+              value: "http://influxdb:8086"
+            - name: INFLUXDB_ORG
+              value: "smartcity"
+            - name: INFLUXDB_BUCKET
+              value: "traffic"
+            - name: INFLUXDB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: influxdb-credentials
+                  key: token
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          livenessProbe:
+            exec:
+              command: ["pgrep", "-f", "aggregator.py"]
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            failureThreshold: 3
+
+---
+# Secret for InfluxDB token — populate before deploying
+# kubectl create secret generic influxdb-credentials \
+#   --namespace=traffic-analytics \
+#   --from-literal=token=<your-token>
+apiVersion: v1
+kind: Secret
+metadata:
+  name: influxdb-credentials
+  namespace: traffic-analytics
+type: Opaque
+stringData:
+  token: "REPLACE_WITH_INFLUXDB_TOKEN"

@@ -1,0 +1,23 @@
+# Camera configuration for the edge node.
+# Adjust per camera mount and resolution requirements.
+
+# Physical camera resolution (before YOLO resize)
+resolution: [1280, 720]
+
+# Target frame rate — actual rate may be lower depending on pipeline performance
+fps: 30
+
+# Camera rotation in degrees (0, 90, 180, 270)
+# Set per physical mounting of the camera
+rotation: 0
+
+# YOLO model input size — frames will be letterbox-resized to this
+yolo_input_size: [640, 640]
+
+# Camera backend selection
+# true  = try picamera2 first (Raspberry Pi Camera Module)
+# false = use OpenCV/V4L2 only
+use_picamera2: true
+
+# OpenCV device index for fallback (typically 0 for /dev/video0)
+device_index: 0

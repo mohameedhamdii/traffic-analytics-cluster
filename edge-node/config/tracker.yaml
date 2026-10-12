@@ -1,0 +1,20 @@
+# ByteTrack multi-object tracker configuration.
+
+# Maximum number of consecutive unmatched frames before a track is deleted
+# At 30 FPS: 30 frames = 1 second without a match before track is removed
+max_age: 30
+
+# Minimum number of consecutive matched frames before a track is "confirmed"
+# Reduces false positives from single-frame spurious detections
+min_hits: 3
+
+# IoU threshold for associating a detection to an existing track
+# Higher value = stricter matching (fewer incorrect associations)
+iou_threshold: 0.3
+
+# Detections with confidence >= high_score_threshold are used in Stage 1 matching
+high_score_threshold: 0.6
+
+# Detections with confidence in [low_score_threshold, high_score_threshold)
+# are used in Stage 2 matching against LOST tracks only
+low_score_threshold: 0.1

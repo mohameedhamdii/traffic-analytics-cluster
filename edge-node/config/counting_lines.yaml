@@ -1,0 +1,35 @@
+# Virtual counting lines for vehicle counting.
+# Coordinates are in frame pixels relative to the camera's captured resolution
+# (1280 × 720 by default).
+#
+# A vehicle is counted when its centroid crosses a line in the specified
+# direction. Two lines are provided — add more as needed for the intersection.
+#
+# To calibrate for your camera angle, overlay these lines on a test frame
+# and adjust coordinates until the lines align with the road lanes.
+
+counting_lines:
+
+  # ── Northbound: horizontal line across the bottom third of the frame ──────
+  - line_id: "northbound"
+    start: [0, 480]       # left edge of frame
+    end: [1280, 480]      # right edge of frame
+    direction: "up"       # count centroids that cross upward (decreasing y)
+
+  # ── Southbound: same horizontal line, opposite direction ──────────────────
+  - line_id: "southbound"
+    start: [0, 480]
+    end: [1280, 480]
+    direction: "down"     # count centroids that cross downward (increasing y)
+
+  # ── Eastbound: vertical line across the right third of the frame ──────────
+  - line_id: "eastbound"
+    start: [960, 0]       # top of frame
+    end: [960, 720]       # bottom of frame
+    direction: "right"    # count centroids moving right (increasing x)
+
+  # ── Westbound: same vertical line, opposite direction ─────────────────────
+  - line_id: "westbound"
+    start: [960, 0]
+    end: [960, 720]
+    direction: "left"

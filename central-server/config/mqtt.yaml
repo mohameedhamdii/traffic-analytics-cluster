@@ -1,0 +1,5 @@
+# MQTT broker configuration for the central server aggregator.
+# Override with MQTT_BROKER_HOST and MQTT_BROKER_PORT environment variables.
+
+broker_host: "mosquitto"
+broker_port: 1883
